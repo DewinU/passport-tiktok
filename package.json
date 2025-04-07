@@ -14,5 +14,9 @@
   "description": "",
   "dependencies": {
     "passport-oauth2": "^1.8.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DewinU/passport-tiktok.git"
   }
 }
