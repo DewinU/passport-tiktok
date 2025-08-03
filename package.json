@@ -1,22 +1,37 @@
 {
   "name": "passport-tiktok",
   "version": "1.0.0",
-  "main": "./lib",
-  "directories": {
-    "lib": "lib"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
+  "main": "./lib/index.js",
+  "types": "./types/index.d.ts",
+  "files": [
+    "lib",
+    "types"
+  ],
+  "keywords": [
+    "passport",
+    "tiktok",
+    "oauth2",
+    "authentication",
+    "auth"
+  ],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "TikTok OAuth2 strategy for Passport.js",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
   "dependencies": {
+    "@types/passport-oauth2": "^1.8.0",
     "passport-oauth2": "^1.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/DewinU/passport-tiktok.git"
-  }
+  },
+  "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0"
 }

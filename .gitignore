@@ -1,2 +1,16 @@
 node_modules
 package-lock.json
+pnpm-lock.yaml
+
+# TypeScript build output
+lib/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
