@@ -1,5 +1,5 @@
 {
-  "name": "passport-tiktok",
+  "name": "passport-tiktok-oauth2",
   "version": "1.0.0",
   "main": "./lib/index.js",
   "types": "./types/index.d.ts",
