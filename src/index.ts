@@ -5,7 +5,7 @@ import type {
   TikTokStrategyOptions,
   VerifyFunction,
   VerifyCallback
-} from '../types';
+} from './types';
 
 // Export Strategy
 export default Strategy;

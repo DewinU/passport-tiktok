@@ -1,5 +1,5 @@
 import OAuth2Strategy, { StrategyOptions as OAuth2StrategyOptions, InternalOAuthError } from 'passport-oauth2';
-import { TikTokBasicProfile, TikTokExtendedProfile, TikTokStrategyOptions, VerifyFunction } from '../types';
+import { TikTokBasicProfile, TikTokExtendedProfile, TikTokStrategyOptions, VerifyFunction } from './types';
 
 /**
  * `Strategy` constructor.
