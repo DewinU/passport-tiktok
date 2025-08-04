@@ -25,10 +25,9 @@ passport.use(new TikTokStrategy({
     clientSecret: 'your-tiktok-client-secret',
     clientKey: 'your-tiktok-client-key',
     callbackURL: "https://www.example.net/auth/tiktok/callback",
-    scope: ['user.info.basic', 'user.info.profile', 'user.info.stats', 'video.list']
   },
   function(accessToken, refreshToken, profile, done) {
-    User.findOrCreate({ tiktokId: profile.id }, function (err, user) {
+    User.findOrCreate({ tiktokId: profile.openId }, function (err, user) {
       return done(err, user);
     });
   }
