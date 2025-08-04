@@ -1,9 +1,11 @@
 import { Strategy as OAuth2Strategy, StrategyOptions as OAuth2StrategyOptions } from 'passport-oauth2';
 
-export interface TikTokProfile {
+
+
+// Basic profile (Login Kit only)
+export interface TikTokBasicProfile {
     provider: 'tiktok';
-    open_id: string;
-    username: string | null;
+    openId: string;
     displayName: string;
     avatarUrl: string;
     _raw: string;
@@ -11,7 +13,6 @@ export interface TikTokProfile {
         data: {
             user: {
                 open_id: string;
-                username?: string;
                 display_name: string;
                 avatar_url: string;
             };
@@ -19,9 +20,27 @@ export interface TikTokProfile {
     };
 }
 
+// Extended profile (with additional permissions)
+export interface TikTokExtendedProfile extends TikTokBasicProfile {
+    username: string;
+    _json: {
+        data: {
+            user: {
+                open_id: string;
+                username: string;
+                display_name: string;
+                avatar_url: string;
+            };
+        };
+    };
+}
+
+
 export interface TikTokStrategyOptions extends OAuth2StrategyOptions {
     clientKey: string;
     profileURL?: string;
+    authorizationURL?: string;
+    tokenURL?: string;
 }
 
 export interface VerifyCallback {

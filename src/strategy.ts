@@ -1,5 +1,5 @@
 import OAuth2Strategy, { StrategyOptions as OAuth2StrategyOptions, InternalOAuthError } from 'passport-oauth2';
-import { TikTokProfile, TikTokStrategyOptions, VerifyFunction } from '../types';
+import { TikTokBasicProfile, TikTokExtendedProfile, TikTokStrategyOptions, VerifyFunction } from '../types';
 
 /**
  * `Strategy` constructor.
@@ -26,7 +26,7 @@ import { TikTokProfile, TikTokStrategyOptions, VerifyFunction } from '../types';
  *         clientSecret: 'shhh-its-a-secret',
  *         clientKey: 'your-client-key',
  *         callbackURL: 'https://www.example.net/auth/tiktok/callback',
- *         scope: ['user.info.basic','user.info.profile', 'user.info.stats', 'video.list']
+ *         scope: ['user.info.basic']
  *       },
  *       function(accessToken, refreshToken, profile, cb) {
  *         User.findOrCreate({ tiktokId: profile.id }, function (err, user) {
@@ -43,6 +43,7 @@ import { TikTokProfile, TikTokStrategyOptions, VerifyFunction } from '../types';
 class Strategy extends OAuth2Strategy {
   private _clientKey: string;
   private _profileURL: string;
+  private _scope: string | string[];
 
   constructor(options: TikTokStrategyOptions, verify: VerifyFunction) {
     const strategyOptions: OAuth2StrategyOptions = {
@@ -60,6 +61,7 @@ class Strategy extends OAuth2Strategy {
     super(strategyOptions, verify);
     
     this._clientKey = options.clientKey;
+    this._scope = options.scope || ['user.info.basic'];
     this._profileURL = options.profileURL || 'https://open.tiktokapis.com/v2/user/info/';
     this.name = 'tiktok';
     this._oauth2.useAuthorizationHeaderforGET(true);
@@ -118,43 +120,58 @@ class Strategy extends OAuth2Strategy {
    * @param {Function} done
    * @api protected
    */
-  userProfile(accessToken: string, done: (error: any, profile?: TikTokProfile) => void): void {
-    const profileFields = 'open_id,avatar_url,display_name';
+  userProfile(accessToken: string, done: (error: any, profile?: any) => void): void {
+    // Check if we have the profile scope
+    const hasProfileScope = this._scope.includes('user.info.profile');
+    
+    const profileFields = hasProfileScope 
+        ? 'open_id,avatar_url,display_name,username'
+        : 'open_id,avatar_url,display_name';
+    
     const url = `${this._profileURL}?fields=${profileFields}`;
     
     this._oauth2.get(url, accessToken, (err: any, body: any, _res: any) => {
-      if (err) {
-        return done(new InternalOAuthError('Failed to fetch user profile', err));
-      }
-      
-      let json: any;
-      try {
-        json = JSON.parse(body);
-      } catch (ex) {
-        return done(new Error('Failed to parse user profile'));
-      }
-      
-      if (!json || !json.data || !json.data.user) {
-        return done(new Error('Invalid TikTok response: missing user data'));
-      }
-      
-      const user = json.data.user;
-      
-      if (!user.open_id) {
-        return done(new Error('Invalid TikTok response: missing open_id'));
-      }
-      
-      const profile: TikTokProfile = {
-        provider: 'tiktok',
-        open_id: user.open_id,
-        username: user.username || null,
-        displayName: user.display_name,
-        avatarUrl: user.avatar_url,
-        _raw: body,
-        _json: json
-      };
-      
-      done(null, profile);
+        if (err) {
+            return done(new InternalOAuthError('Failed to fetch user profile', err));
+        }
+        
+        let json: any;
+        try {
+            json = JSON.parse(body);
+        } catch (ex) {
+            return done(new Error('Failed to parse user profile'));
+        }
+        
+        if (!json || !json.data || !json.data.user) {
+            return done(new Error('Invalid TikTok response: missing user data'));
+        }
+        
+        const user = json.data.user;
+        
+        if (!user.open_id) {
+            return done(new Error('Invalid TikTok response: missing open_id'));
+        }
+
+        const baseProfile = {
+            provider: 'tiktok' as const,
+            openId: user.open_id,
+            displayName: user.display_name,
+            avatarUrl: user.avatar_url,
+            _raw: body,
+            _json: json
+        };
+
+        // Return extended profile if we have username, basic profile otherwise
+        if (hasProfileScope && user.username) {
+            const extendedProfile: TikTokExtendedProfile = {
+                ...baseProfile,
+                username: user.username,
+            };
+            done(null, extendedProfile);
+        } else {
+            const basicProfile: TikTokBasicProfile = baseProfile;
+            done(null, basicProfile);
+        }
     });
   }
 }
